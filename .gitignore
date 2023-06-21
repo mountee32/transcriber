@@ -1,4 +1,7 @@
 # .gitignore
 .env
 *.pyc
+*.txt
+*.mp3
+*.json
 __pycache__/
