@@ -10,21 +10,19 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from dotenv import load_dotenv
-import os
+from loguru import logger
 
 load_dotenv()
 # Load the Whisper model
 model = whisper.load_model("base")
 openai.api_key = os.getenv('OPENAI_KEY') 
 
-def send_email_with_attachments(to_address, subject, body, files):
+def send_email_with_attachments(to_addresses, subject, body, files):
     from_address = os.getenv('EMAIL')
     password = os.getenv('PASSWORD')
-    # print(from_address,"\n")
-    # print(password,"/n")
+
     msg = MIMEMultipart()
     msg['From'] = from_address
-    msg['To'] = to_address
     msg['Subject'] = subject
 
     msg.attach(MIMEText(body, 'plain'))
@@ -41,16 +39,20 @@ def send_email_with_attachments(to_address, subject, body, files):
         msg.attach(part)
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)  # Use the right SMTP server for your email provider
+        server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(from_address, password)
-        text = msg.as_string()
-        server.sendmail(from_address, to_address, text)
-        server.quit()
-        print("Email sent successfully")
-    except Exception as e:
-        print(f"Failed to send email: {e}")
 
+        # Separate the recipients and send the email to each one
+        for to_address in to_addresses.split(','):
+            msg['To'] = to_address.strip()  # Set the 'To' field for each recipient
+            text = msg.as_string()
+            server.sendmail(from_address, to_address, text)
+
+        server.quit()
+        logger.info("Email sent successfully")
+    except Exception as e:
+        logger.error(f"Failed to send email: {e}")
 
 def download_audio(url, filename):
     """Downloads an audio file from a URL and saves it to a file."""
@@ -58,24 +60,25 @@ def download_audio(url, filename):
     response.raise_for_status()  # Throw an error if the request failed
     with open(filename, 'wb') as f:
         f.write(response.content)
+    logger.info("Audio downloaded successfully")
 
 def transcribe_audio(filename):
     """Transcribes an audio file using the Whisper API."""
     result = model.transcribe(filename)
+    logger.info("Audio transcribed successfully")
     return result["text"]
-
 
 def summarize_transcription(transcription):
     """Summarizes a transcription using the OpenAI API."""
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k", 
-        messages = [
+        messages=[
             {"role": "system", "content" : "You are a chatbot which can summarize long documents."},
             {"role": "user", "content" : f"Please summarize this Christian sermon into the following format 1) Summary of 50 words, 2)20 bullet points of a total of 800 words 3) list of bible verses mentioned: {transcription}"},
         ]
     )
+    logger.info("Transcription summarized successfully")
     return completion.choices[0].message['content']
-
 
 def process_new_episodes():
     # Load the previous episodes
@@ -88,16 +91,19 @@ def process_new_episodes():
     # Parse the RSS feed
     feed = feedparser.parse(os.getenv('PODCAST'))
 
-    print(f"Feed entries: {len(feed.entries)}")  # Add this line
+    logger.info(f"Feed entries: {len(feed.entries)}")
 
     for entry in feed.entries:
-        # Check if this episode has been processed before
+        # Check if this episode has beenI apologize for the cutoff. Here is the rest of the code:
+
+
+        # processed before
         if entry.id in previous_episodes:
-            print(f"Skipping processed episode: {entry.title}")  # Add this line
+            logger.info(f"Skipping processed episode: {entry.title}")
             continue
 
-        print(f"Processing new episode: {entry.title}")
-        print(f"Description: {entry.description}")
+        logger.info(f"Processing new episode: {entry.title}")
+        logger.info(f"Description: {entry.description}")
 
         # Download the audio file
         audio_url = entry.enclosures[0].href
@@ -136,5 +142,9 @@ def process_new_episodes():
         with open("previous_episodes.json", "w") as f:
             json.dump(previous_episodes, f)
 
+        logger.info(f"Episode {entry.title} processed successfully")
+
 if __name__ == "__main__":
+    logger.info("Starting process")
     process_new_episodes()
+    logger.info("Process finished")
