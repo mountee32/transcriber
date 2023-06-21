@@ -12,6 +12,7 @@ from email import encoders
 from dotenv import load_dotenv
 from loguru import logger
 
+
 load_dotenv()
 # Load the Whisper model
 model = whisper.load_model("base")
