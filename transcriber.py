@@ -15,7 +15,7 @@ from loguru import logger
 
 load_dotenv()
 # Load the Whisper model
-model = whisper.load_model("base")
+# model = whisper.load_model("base")
 openai.api_key = os.getenv('OPENAI_KEY') 
 
 def send_email_with_attachments(to_addresses, subject, body, files):
@@ -64,10 +64,21 @@ def download_audio(url, filename):
     logger.info("Audio downloaded successfully")
 
 def transcribe_audio(filename):
-    """Transcribes an audio file using the Whisper API."""
-    result = model.transcribe(filename)
+    """Transcribes an audio file using the Whisper service running in Docker."""
+
+    # Define the URL of the Whisper service
+    whisper_service_url = "http://172.17.0.3:9000/asr"
+
+    # Open the file in binary mode and send a POST request to the Whisper service
+    with open(filename, 'rb') as f:
+        response = requests.post(whisper_service_url, files={'audio_file': f})
+        
+    response.raise_for_status()  # Throw an error if the request failed
+
+    # Get the response text
+    transcription = response.text.strip()
     logger.info("Audio transcribed successfully")
-    return result["text"]
+    return transcription
 
 def summarize_transcription(transcription):
     """Summarizes a transcription using the OpenAI API."""
@@ -149,3 +160,4 @@ if __name__ == "__main__":
     logger.info("Starting process")
     process_new_episodes()
     logger.info("Process finished")
+
