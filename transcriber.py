@@ -16,7 +16,7 @@ from loguru import logger
 
 load_dotenv()
 # Load the Whisper model
-model = whisper.load_model("base")
+# model = whisper.load_model("base")
 openai.api_key = os.getenv('OPENAI_KEY') 
 
 def send_email_with_attachments(to_addresses, subject, body, files):
