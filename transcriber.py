@@ -1,5 +1,6 @@
 import feedparser
 import json
+import time
 import os
 import requests
 #import whisper
@@ -15,7 +16,7 @@ from loguru import logger
 
 load_dotenv()
 # Load the Whisper model
-# model = whisper.load_model("base")
+model = whisper.load_model("base")
 openai.api_key = os.getenv('OPENAI_KEY') 
 
 def send_email_with_attachments(to_addresses, subject, body, files):
@@ -157,7 +158,12 @@ def process_new_episodes():
         logger.info(f"Episode {entry.title} processed successfully")
 
 if __name__ == "__main__":
-    logger.info("Starting process")
-    process_new_episodes()
-    logger.info("Process finished")
-
+    while True:
+        try:
+            logger.info("Starting process")
+            process_new_episodes()
+            logger.info("Process finished")
+        except Exception as e:
+            logger.error(f"An error occurred: {e}")
+        finally:
+            time.sleep(30 * 60)  # sleep for 30 minutes
