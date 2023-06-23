@@ -87,7 +87,7 @@ def summarize_transcription(transcription):
         model="gpt-3.5-turbo-16k", 
         messages=[
             {"role": "system", "content" : "You are a chatbot which can summarize long documents."},
-            {"role": "user", "content" : f"Please summarize this Christian sermon into the following format 1) Summary of 50 words, 2)20 bullet points of a total of 800 words 3) list of bible verses mentioned: {transcription}"},
+            {"role": "user", "content" : f"Please summarize this Christian sermon into the following format 1) Summary of 100 words, 2)20 bullet points of a total of 800 words 3) list of bible verses mentioned: {transcription}"},
         ]
     )
     logger.info("Transcription summarized successfully")
