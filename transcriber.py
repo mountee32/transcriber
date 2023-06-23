@@ -68,7 +68,7 @@ def transcribe_audio(filename):
     """Transcribes an audio file using the Whisper service running in Docker."""
 
     # Define the URL of the Whisper service
-    whisper_service_url = "http://172.17.0.3:9000/asr"
+    whisper_service_url = "http://172.18.0.22:9000/asr"
 
     # Open the file in binary mode and send a POST request to the Whisper service
     with open(filename, 'rb') as f:
