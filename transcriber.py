@@ -2,7 +2,7 @@ import feedparser
 import json
 import os
 import requests
-import whisper
+#import whisper
 import openai  
 import smtplib
 from email.mime.multipart import MIMEMultipart
