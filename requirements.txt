@@ -1,9 +1,5 @@
 feedparser
-json
-os
 requests
 openai
-smtplib
-email
 python-dotenv
 loguru
