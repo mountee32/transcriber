@@ -164,6 +164,6 @@ if __name__ == "__main__":
             process_new_episodes()
             logger.info("Process finished")
         except Exception as e:
-            logger.error(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}\n{traceback.format_exc()}")
         finally:
             time.sleep(30 * 60)  # sleep for 30 minutes
